@@ -1,0 +1,14 @@
+<application>
+  <component name="DimensionService">
+      <location
+          key="WELCOME_SCREEN.0.0.1920.1280@144dpi"
+          x="960"
+          y="450" />
+      <location
+          key="IdeErrosDialog.0.0.1920.1280@144dpi"
+          x="408"
+          y="351" />
+      <location
+          key="SettingsEditor.0.0.1920.1280@144dpi"
+          x="111"
+          y="3

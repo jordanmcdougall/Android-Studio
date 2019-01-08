@@ -1,0 +1,6 @@
+package uk.co.jordanmcdougall.myfifthapp;
+
+import android.Manifest;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Locati

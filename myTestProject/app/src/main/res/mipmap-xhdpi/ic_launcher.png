@@ -1,0 +1,122 @@
+package uk.co.jordanmcdougall.myfifthapp;
+
+import android.Manifest;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.os.Looper;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
+
+//Location
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
+
+
+//Database
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+public class ContentActivity extends AppCompatActivity implements View.OnClickListener{
+
+    private static final int REQUEST_CODE = 1000;
+    TextView textViewLat, textViewLon;
+    Button buttonStart;
+    private FirebaseAuth mAuth;
+    public static final String NODE_USERS = "users";
+
+
+    FusedLocationProviderClient fusedLocationProviderClient;
+    LocationRequest locationRequest;
+    LocationCallback locationCallback;
+    Float latUpperlimit;
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case REQUEST_CODE:
+
+            {
+                if (grantResults.length > 0) {
+                    if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    } else if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
+
+                    }
+                }
+            }
+        }
+
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_content);
+
+
+        //Init View
+        textViewLat = findViewById(R.id.textViewLat);
+        textViewLon = findViewById(R.id.textViewLon);
+        buttonStart =  findViewById(R.id.buttonLogout);
+        buttonStart.setOnClickListener(this);;
+
+        mAuth = FirebaseAuth.getInstance();
+
+
+        //Check permissions @ runtime
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE);
+        } else {
+
+            //If permission is granted
+            buildLocationRequest();
+            buildLocationCallback();
+
+            //Create FuseProvider Client
+
+            fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+
+
+                    if (ActivityCompat.checkSelfPermission(ContentActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(ContentActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        ActivityCompat.requestPermissions(ContentActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE);
+                        return;
+                    }
+
+                    fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
+
+
+
+        }
+
+    }
+
+    private void logOut() {
+        mAuth.signOut();
+        Toast.makeText(getApplicationContext(), "Signing Out", Toast.LENGTH_SHORT).show();
+        //startActivity(new Intent(SignUpActivity.this, ProfileActivity.class));
+        Intent intent = new Intent(ContentActivity.this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |Intent.FLAG_ACTIVITY_CLEAR_TOP  );
+        startActivity(intent);
+
+    }
+
+    private void buildLocationCallback() {
+
+        locationCallback = new LocationCallback()
+        {
+            @Override
+            public void onLocationResult(LocationResult locationResult) 
